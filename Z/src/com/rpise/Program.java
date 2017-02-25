@@ -50,26 +50,27 @@ public class Program {
 		});
 		JMenuBar menuBar = new JMenuBar();
 
-		JMenu m = new JMenu("File");
+		JMenu menu = new JMenu("File");
 
 		JMenuItem openFileMenuItem = new JMenuItem("Open");
 		JMenuItem newFileMenuItem = new JMenuItem("New");
 		JMenuItem saveFileMenuItem = new JMenuItem("Save");
 		
-		m.add(newFileMenuItem);
-		m.add(openFileMenuItem);
-		m.add(saveFileMenuItem);
+		menu.add(newFileMenuItem);
+		menu.add(openFileMenuItem);
+		menu.add(saveFileMenuItem);
 		
-		NewFile createFile = new NewFile(ta, frame);
-		newFileMenuItem.addActionListener(createFile);
+		NewFile createFileListener = new NewFile(ta, frame);
+		newFileMenuItem.addActionListener(createFileListener);
 		
-		OpenFile openFile = new OpenFile(ta, frame);
-		openFileMenuItem.addActionListener(openFile);
+		OpenFile openFileListener = new OpenFile(ta, frame);
+		openFileMenuItem.addActionListener(openFileListener);
 		
 		SaveFile saveFileListener = new SaveFile(ta, frame);
 		saveFileMenuItem.addActionListener(saveFileListener);
 		
-		menuBar.add(m);
+		menuBar.add(menu);
+		
 		frame.setJMenuBar(menuBar);
 		frame.add(ta);
 		frame.setSize(400, 400);
@@ -100,11 +101,11 @@ class NewFile implements ActionListener{
 
 class OpenFile implements ActionListener {
 	private JTextArea ta;
-	private JFrame f;
+	private JFrame frame;
 
-	public OpenFile(JTextArea ta, JFrame f) {
+	public OpenFile(JTextArea ta, JFrame frame) {
 		this.ta = ta;
-		this.f = f;
+		this.frame = frame;
 	}
 
 	@Override
@@ -112,14 +113,14 @@ class OpenFile implements ActionListener {
 
 		JFileChooser fileChooser = new JFileChooser();
 		//fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
-		int result = fileChooser.showOpenDialog(this.f);
+		int result = fileChooser.showOpenDialog(this.frame);
 
 		if (result == JFileChooser.APPROVE_OPTION) {
 			File selectedFile = fileChooser.getSelectedFile();
 			Program.currentFile = selectedFile;
 			try {
 				ta.setText(FileUtility.readFile(selectedFile.getAbsolutePath()));
-				f.setTitle(fileChooser.getSelectedFile() + " " + Program.TITLE);
+				frame.setTitle(fileChooser.getSelectedFile() + " " + Program.TITLE);
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
