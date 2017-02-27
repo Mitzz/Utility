@@ -10,8 +10,6 @@ import java.util.Map;
 import java.util.Random;
 
 import work.Program;
-import db.DbUtility;
-import db.DbUtility.DBConnector;
 
 public class EntityRevisited {
 	
@@ -789,7 +787,7 @@ public class EntityRevisited {
 	}
 
 	private static void componentEntity() throws ClassNotFoundException, SQLException {
-		Connection connector = DbUtility.DBConnector.getConnection(CONNECTION_ID);
+		Connection connector = DBConnector.getConnection(CONNECTION_ID);
 		
 		EntityRevisited entity = getComponentEntity("Component");
 		entity.populateColumnDetails();
@@ -1103,7 +1101,7 @@ public class EntityRevisited {
 	}
 
 	private static void processTreeEntity() throws ClassNotFoundException, SQLException {
-		Connection connector = DbUtility.DBConnector.getConnection(CONNECTION_ID);
+		Connection connector = DBConnector.getConnection(CONNECTION_ID);
 		
 		EntityRevisited entity = getProcessTreeEntityRevisited("ProcessTree");
 		entity.populateColumnDetailsRevisited();
@@ -1258,7 +1256,7 @@ public class EntityRevisited {
 	}
 
 	private static void calendarEntity() throws ClassNotFoundException, SQLException {
-		Connection connector = DbUtility.DBConnector.getConnection(CONNECTION_ID);
+		Connection connector = DBConnector.getConnection(CONNECTION_ID);
 		
 		EntityRevisited entity = getCalendarEntityRevisited("Calendar");
 		entity.populateColumnDetailsRevisited();
@@ -1422,7 +1420,7 @@ public class EntityRevisited {
 	}
 
 	private static void stageEntity() throws ClassNotFoundException, SQLException {
-		Connection connector = DbUtility.DBConnector.getConnection(CONNECTION_ID);
+		Connection connector = DBConnector.getConnection(CONNECTION_ID);
 		
 		EntityRevisited entity = getStageEntityRevisited("Stage");
 		entity.populateColumnDetailsRevisited();
@@ -1960,7 +1958,7 @@ public class EntityRevisited {
 	}
 
 	private static boolean validate(EntityRevisited entity) throws ClassNotFoundException, SQLException {
-		Connection connection = DbUtility.DBConnector.getConnection(CONNECTION_ID);
+		Connection connection = DBConnector.getConnection(CONNECTION_ID);
 		boolean primaryDetection = false;
 		boolean foreignDetection = false;
 		boolean actionColumnDetection = false;
@@ -1981,7 +1979,7 @@ public class EntityRevisited {
 	}
 	
 	private static boolean validateRevisited(EntityRevisited entity) throws ClassNotFoundException, SQLException {
-		Connection connection = DbUtility.DBConnector.getConnection(CONNECTION_ID);
+		Connection connection = DBConnector.getConnection(CONNECTION_ID);
 		boolean primaryDetection = false;
 		boolean foreignDetection = false;
 		boolean actionColumnDetection = false;
@@ -2031,7 +2029,7 @@ public class EntityRevisited {
 	}
 
 	private static void messageFormat() throws ClassNotFoundException, SQLException {
-		Connection connector = DbUtility.DBConnector.getConnection(CONNECTION_ID);
+		Connection connector = DBConnector.getConnection(CONNECTION_ID);
 		
 		EntityRevisited entity =  getMessageFormatEntityRevisited("MessageFormat");
 		entity.populateColumnDetailsRevisited();
@@ -2806,7 +2804,7 @@ public class EntityRevisited {
 	}
 	
 	private static void test(EntityRevisited entity) throws ClassNotFoundException, SQLException{
-		Connection connector = DbUtility.DBConnector.getConnection(CONNECTION_ID);
+		Connection connector = DBConnector.getConnection(CONNECTION_ID);
 		
 		detectExtraMasterColumnsRevisited(connector, entity);
 		if(validateRevisited(entity)){

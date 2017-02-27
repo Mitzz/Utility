@@ -1,20 +1,14 @@
 package db;
 
-import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 
-import utility.CollectionUtility;
+import model.DBConnector;
 import db.oracle.OracleDbUtility;
-import db.oracle.OracleInsertScriptGenerator;
 import db.oracle.OracleTransformParam;
 import db.oracle.OracleUserDDL;
-import file.PropertyFileLoader;
 
 public class DbUtility{
 
@@ -35,8 +29,8 @@ public class DbUtility{
 		Connection sourceConnection = null;
 		Connection destinationConnection = null;
 		try{	
-			sourceConnection = DBConnector.getConnection(6);
-			destinationConnection = DBConnector.getConnection(7);
+			sourceConnection = DBConnector.getConnection("MITHULLOCALUSER");
+			destinationConnection = DBConnector.getConnection("LOCAL_COPY_2");
 			OracleDbUtility.setTransform(sourceConnection, 
 					Arrays.asList(	OracleTransformParam.SEGMENT_ATTRIBUTES,
 									OracleTransformParam.CONSTRAINTS,
@@ -49,24 +43,24 @@ public class DbUtility{
 			List<String> ddlList = new ArrayList<String>();
 			ddlList.addAll(OracleUserDDL.getUserTypeDDL(sourceConnection));
 			ddlList.addAll(OracleUserDDL.getUserSequenceDDL(sourceConnection));
-			ddlList.addAll(OracleUserDDL.getUserTableDDL(sourceConnection));
-			ddlList.addAll(OracleUserDDL.getUserViewDDL(sourceConnection));
-
+//			ddlList.addAll(OracleUserDDL.getUserTableDDL(sourceConnection));
+//			ddlList.addAll(OracleUserDDL.getUserViewDDL(sourceConnection));
+//
 			OracleDbUtility.executeDdl(destinationConnection, ddlList);
-
-			OracleDbUtility.transferTableData(sourceConnection, destinationConnection);
-			
-			ddlList = new ArrayList<String>();
-			ddlList.addAll(OracleUserDDL.getUserTablePrimaryKeyConstraintDdl(sourceConnection));
-			ddlList.addAll(OracleUserDDL.getUserTableUniqueKeyConstraintDdl(sourceConnection));
-			ddlList.addAll(OracleUserDDL.getUserCheckConstraintDDL(sourceConnection));
-			ddlList.addAll(OracleUserDDL.getNotNullConstraintDDL(sourceConnection));
-			ddlList.addAll(OracleUserDDL.getForeignKeyConstraintDDL(sourceConnection));
-			ddlList.addAll(OracleUserDDL.getUserFunctionDDL(sourceConnection));
-			ddlList.addAll(OracleUserDDL.getUserPackageDDL(sourceConnection));
-			ddlList.addAll(OracleUserDDL.getUserProcedureDDL(sourceConnection));
-
-			OracleDbUtility.executeDdl(destinationConnection, ddlList);
+//
+//			OracleDbUtility.transferTableData(sourceConnection, destinationConnection);
+//			
+//			ddlList = new ArrayList<String>();
+//			ddlList.addAll(OracleUserDDL.getUserTablePrimaryKeyConstraintDdl(sourceConnection));
+//			ddlList.addAll(OracleUserDDL.getUserTableUniqueKeyConstraintDdl(sourceConnection));
+//			ddlList.addAll(OracleUserDDL.getUserCheckConstraintDDL(sourceConnection));
+//			ddlList.addAll(OracleUserDDL.getNotNullConstraintDDL(sourceConnection));
+//			ddlList.addAll(OracleUserDDL.getForeignKeyConstraintDDL(sourceConnection));
+//			ddlList.addAll(OracleUserDDL.getUserFunctionDDL(sourceConnection));
+//			ddlList.addAll(OracleUserDDL.getUserPackageDDL(sourceConnection));
+//			ddlList.addAll(OracleUserDDL.getUserProcedureDDL(sourceConnection));
+//
+//			OracleDbUtility.executeDdl(destinationConnection, ddlList);
 			
 //			CollectionUtility.displayList(OracleInsertScriptGenerator.getInsertScript(sourceConnection, "TB_LANGUAGE_MASTER"), ";");
 		}
@@ -75,31 +69,7 @@ public class DbUtility{
 			if(destinationConnection != null) destinationConnection.close();
 		}
 	}
-
 	
-
-	public static class DBConnector {
-		private final static String CONNNECTION_DETAIL_FILE_PATH = "D:/Connection.properties";
-		private final static String DRIVER_CLASS = "oracle.jdbc.driver.OracleDriver";
-
-		public static Connection getConnection(int id) throws ClassNotFoundException, SQLException {
-			Properties prop = null;
-			Connection connection = null;
-			try {
-				prop = new PropertyFileLoader(CONNNECTION_DETAIL_FILE_PATH).load();
-				
-				Class.forName(DRIVER_CLASS);
-				String url = prop.getProperty("url" + id);
-				String username = prop.getProperty("username" + id);
-				String password = prop.getProperty("password" + id);
-				connection = DriverManager.getConnection(url, username, password);
-				return connection;
-			} catch (IOException ex) {
-				ex.printStackTrace();
-			}
-			return connection;
-		}
-	}
 }
 
 

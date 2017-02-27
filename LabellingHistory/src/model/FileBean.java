@@ -1,6 +1,7 @@
 package model;
 
 import java.io.File;
+import java.util.Date;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -62,7 +63,7 @@ public class FileBean implements Comparable<FileBean>{
 	}
 	
 	private FileBean extension(String name){
-		extension = StringUtility.getLastPart(name, EXTENSTION_SEPARATOR);
+		extension = StringUtility.getLastPartAfterDelimiter(name, EXTENSTION_SEPARATOR);
 		return this;
 	}
 	
@@ -126,5 +127,13 @@ public class FileBean implements Comparable<FileBean>{
 	    	}
 		}
     	return false;
+	}
+	
+	public boolean isModifiedAfter(Date date){
+		return lastModified() > date.getTime();
+	}
+	
+	public boolean isModifiedAfter(long time){
+		return lastModified() > time;
 	}
 }

@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
 
+import model.DBConnector;
 import utility.CollectionUtility;
 import utility.DateUtility;
 import utility.FileUtility;
@@ -136,7 +137,7 @@ public class GenerateInsertStatements {
 		String fileName = null;
 		Connection conn = null;
 		try {
-			conn = DbUtility.DBConnector.getConnection(CONNECTION_ID);
+			conn = DBConnector.getConnection(CONNECTION_ID);
 			if (tableName != null) {
 				String insertScript = OracleInsertScriptGenerator.getInsertScriptAsString(conn, table);
 				FileUtility.writeToFile(tableName + FILE_EXTENSION, insertScript);

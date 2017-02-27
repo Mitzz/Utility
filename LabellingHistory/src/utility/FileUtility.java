@@ -40,8 +40,7 @@ public class FileUtility {
 	
 	public static SortedSet<FileBean> getFileBean(final File folder) {
 		SortedSet<FileBean> fileBeanSet = new TreeSet<FileBean>();
-		
-	    for (final File fileEntry : folder.listFiles())
+		for (final File fileEntry : folder.listFiles())
 	    	if (fileEntry.isDirectory()) 	fileBeanSet.addAll(getFileBean(fileEntry));
 	        else 							fileBeanSet.add(new FileBean().name(fileEntry.getName()).absolutePath(fileEntry.getAbsolutePath()).lastModified(fileEntry.lastModified()).length(fileEntry.length()));
 	    
@@ -77,6 +76,21 @@ public class FileUtility {
 		return fileBeanSet1;
 	}
 	
+	public static SortedSet<FileBean> getFileBean(final File folder, Set<String> excludeFolderSet, Set<String> includeFileExtensionSet, Date date) {
+		SortedSet<FileBean> fileBeanSet = getFileBean(folder);
+		SortedSet<FileBean> fileBeanSet1 = new TreeSet<FileBean>();
+		if(date != null && excludeFolderSet != null && includeFileExtensionSet != null){
+			long time = date.getTime();
+			for(FileBean fileBean: fileBeanSet){
+				if(fileBean.isModifiedAfter(time) && fileBean.isExtensionPresent(includeFileExtensionSet) && !fileBean.isAnyFolderPresent(excludeFolderSet)){
+					fileBeanSet1.add(fileBean);
+				}
+			}
+		}
+		return fileBeanSet1;
+		
+	}
+	
 	public static Map<String,String> getFileNameToFilePath(final String folder) {
 		return getFileNameToFilePath(new File(folder));
 	}
@@ -96,16 +110,8 @@ public class FileUtility {
 		}
 	}
 
-	public static List<FileBean> getFileNameListAfterGivenDate(Date date, String searchDirectory, Set<String> excludeFolderNameSet, Set<String> extensionSet){
-		SortedSet<FileBean> fileBeanSet = getFileBean(new File(searchDirectory), excludeFolderNameSet, extensionSet);
-		long time = date.getTime();
-		List<FileBean> fileBeanList = new ArrayList<FileBean>();
-		for(FileBean fileBean: fileBeanSet){
-			if(fileBean.lastModified() > time){
-				fileBeanList.add(fileBean);
-			}
-		}
-		return fileBeanList;
+	public static List<FileBean> getFileBeanListAfterGivenDate(Date date, String searchDirectory, Set<String> excludeFolderNameSet, Set<String> extensionSet){
+		return new ArrayList<FileBean>(getFileBean(new File(searchDirectory), excludeFolderNameSet, extensionSet, date));
 	}
 
 	private static void copyFile(File fileFrom, File fileTo) throws IOException {
@@ -166,12 +172,13 @@ public class FileUtility {
 	public static void main(String[] args) throws IOException {
 		System.out.println("----------Start: " + new Date() + "----------");
 //		final String WORKSPACE_PATH = "D:/HUBSWorkspace/Workspace";
+		final String SVN_PATH = "D:/SVN/16.2.1.0_WIP/SOURCE";
 //		Map<String, String> listFilesForFolder = FileUtility.getFileNameToFilePath("C:/Users/mithul.bhansali/Desktop/Patch");
 //		System.out.println(listFilesForFolder.keySet());
 		
-//		logWorkspaceFileChanges();
-		
-		diff();
+//		logFileChanges(WORKSPACE_PATH);
+		logFileChanges(SVN_PATH);
+//		diff(WORKSPACE_PATH, SVN_PATH);
 		
 //		List<String> fileNameList = getDuplicateFileNameList(WORKSPACE_PATH);
 //		System.out.println(fileNameList.size());
@@ -187,6 +194,38 @@ public class FileUtility {
 		
 		FileUtility.createBackup(new HashSet<String>(Arrays.asList("web.xml")), WORKSPACE_PATH, CONFLICT_FILE_BACKUP_PATH);
 	}
+	
+	private static void logFileChanges(String filePath){
+
+		final int YEAR = 2017;
+		final int MONTH = Calendar.FEBRUARY;
+		final int DATE = 27;
+		final int HOUR_OF_DAY = 9;
+		final int MINUTE = 00;
+		
+		Calendar instance = Calendar.getInstance();
+		instance.set(YEAR, MONTH, DATE, HOUR_OF_DAY, MINUTE, 0);
+
+		SortedSet<String> excludedFolderNameSet = CollectionUtility.createSortedSet("bin", "svn", "buildFiles",".metadata", "LabellingHistory", "Z");
+		List<FileBean> fileBeanListAfterGivenDate = getFileBeanListAfterGivenDate(instance.getTime(), filePath, excludedFolderNameSet, getFileExtensionNameSetToBeIncluded());
+		List<String> fileNameList = new ArrayList<String>();
+		
+		for(FileBean fileBean: fileBeanListAfterGivenDate)
+			fileNameList.add(fileBean.absolutePath());
+		
+		String log = new String(new StringBuilder().append(
+				String.format("---- File Changes Details after %s for Folder Path %s ----\nExcluded Folder: %s\nIncluded File Extension: %s\nFile Size: %d\nFile Name: %s",
+					instance.getTime(),
+					filePath, 
+					excludedFolderNameSet, 
+					getFileExtensionNameSetToBeIncluded(), 
+					fileNameList.size(), 
+					fileNameList)));
+		
+		System.out.println(log);
+		
+	
+	}
 
 	private static void logWorkspaceFileChanges(){
 		final String WORKSPACE_PATH = "D:/HUBSWorkspace/Workspace";
@@ -201,9 +240,9 @@ public class FileUtility {
 		instance.set(YEAR, MONTH, DATE, HOUR_OF_DAY, MINUTE, 0);
 		
 		SortedSet<String> excludedFolderNameSet = CollectionUtility.createSortedSet("bin", "svn", "buildFiles",".metadata", "LabellingHistory", "Z");
-		SortedSet<String> includedFileExtensionNameSet = CollectionUtility.createSortedSet("java", "js", "jsp", "class", "xml", "properties", "sql");
+		SortedSet<String> includedFileExtensionNameSet = CollectionUtility.createSortedSet("java", "js", "jsp", "class", "xml", "properties", "sql", "html", "css");
 //		SortedSet<String> includedFileExtensionNameSet = CollectionUtility.createSortedSet("sql");
-		List<FileBean> fileBeanListAfterGivenDate = getFileNameListAfterGivenDate(instance.getTime(), WORKSPACE_PATH, excludedFolderNameSet, includedFileExtensionNameSet);
+		List<FileBean> fileBeanListAfterGivenDate = getFileBeanListAfterGivenDate(instance.getTime(), WORKSPACE_PATH, excludedFolderNameSet, includedFileExtensionNameSet);
 		List<String> fileNameList = new ArrayList<String>();
 		
 		for(FileBean fileBean: fileBeanListAfterGivenDate)
@@ -222,9 +261,7 @@ public class FileUtility {
 		
 	}
 	
-	private static void diff(){
-		final String WORKSPACE_PATH = "D:/HUBSWorkspace/Workspace";
-		final String SVN_PATH = "D:/SVN/16.2.1.0_WIP/SOURCE";
+	private static void diff(String WORKSPACE_PATH, String SVN_PATH){
 		final int YEAR = 2016;
 		final int MONTH = Calendar.FEBRUARY;
 		final int DATE = 1;
@@ -234,33 +271,42 @@ public class FileUtility {
 		Calendar instance = Calendar.getInstance();
 		instance.set(YEAR, MONTH, DATE, HOUR_OF_DAY, MINUTE, 0);
 		
-		SortedSet<String> excludedFolderNameSet = CollectionUtility.createSortedSet("bin", "svn", ".metadata", "LabellingHistory", "BLOB", "build", ".settings","Z");
-		SortedSet<String> includedFileExtensionNameSet = CollectionUtility.createSortedSet("java", "js", "jsp", "class", "xml", "properties", "sql", "css", "html");
-		List<FileBean> workspaceFileBeanSet = getFileNameListAfterGivenDate(instance.getTime(), WORKSPACE_PATH, excludedFolderNameSet, includedFileExtensionNameSet);
+		SortedSet<String> excludedFolderNameSet = 
+				CollectionUtility.createSortedSet("bin", "svn", ".metadata", "LabellingHistory", "BLOB", "build", ".settings","Z");
 		
-		SortedSet<FileBean> svnFileBeanSet = getFileBean(SVN_PATH);
+		diff(WORKSPACE_PATH, SVN_PATH, instance, excludedFolderNameSet, getFileExtensionNameSetToBeIncluded());
+	}
+	
+	private static SortedSet<String> getFileExtensionNameSetToBeIncluded(){
+		return CollectionUtility.createSortedSet("java", "js", "jsp", "class", "xml", "properties", "sql", "css", "html");
+	}
+	
+	private static void diff(String pathX, String pathY, Calendar modifiedAfter, SortedSet<String> excludedFolderNameSet, SortedSet<String> includedFileExtensionNameSet){
+		
+		List<FileBean> pathXFileBeanList = getFileBeanListAfterGivenDate(modifiedAfter.getTime(), pathX, excludedFolderNameSet, includedFileExtensionNameSet);
+		SortedSet<FileBean> pathYFileBeanSet = getFileBean(new File(pathY), excludedFolderNameSet, includedFileExtensionNameSet, modifiedAfter.getTime());
 		
 		StringBuilder builder = new StringBuilder();
 		builder.append(
 				String.format("Workspace and SVN File Difference Details\nWorkspace Path: %s\nSVN Path:%s\nExcluded Folder: %s\nIncluded File Extension: %s\n",
-					WORKSPACE_PATH, 
-					SVN_PATH,
+					pathX, 
+					pathY,
 					excludedFolderNameSet, 
 					includedFileExtensionNameSet));
 		
-		for(FileBean workspaceFileBean: workspaceFileBeanSet){
+		for(FileBean pathXFile: pathXFileBeanList){
 			boolean isFound = false;
-			for(FileBean svnFileBean: svnFileBeanSet){
-				if(workspaceFileBean.name().equals(svnFileBean.name()) && workspaceFileBean.relativePath().equals(svnFileBean.relativePath())){
+			for(FileBean pathYFileBean: pathYFileBeanSet){
+				if(pathXFile.name().equals(pathYFileBean.name()) && pathXFile.relativePath().equals(pathYFileBean.relativePath())){
 					isFound = true;
-					if(workspaceFileBean.length() != svnFileBean.length()){
-						builder.append(workspaceFileBean.absolutePath() + "____" + workspaceFileBean.name() + " - ");
+					if(pathXFile.length() != pathYFileBean.length()){
+						builder.append(pathXFile.absolutePath() + "____" + pathXFile.name() + " - ");
 						break;
 					}
 				}
 			}
 			if(!isFound)
-				builder.append(workspaceFileBean.absolutePath() + "****" + workspaceFileBean.name() + " - ");
+				builder.append(pathXFile.absolutePath() + "****" + pathXFile.name() + " - ");
 		}
 		System.out.println(builder);
 	}
