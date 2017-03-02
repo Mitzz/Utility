@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import file.FileCopy;
 import model.FileBean;
 
 public class FileUtility {
@@ -105,7 +106,7 @@ public class FileUtility {
 		Map<String, String> fileNameToFilePath = getFileNameToFilePath(searchDirectory);
 		for(String fileName: fileNameList){
 			if(fileNameToFilePath.containsKey(fileName)){
-				copyFile(new File(fileNameToFilePath.get(fileName)), new File(backupDirectory + File.separator + fileName));
+				new FileCopy(fileNameToFilePath.get(fileName), backupDirectory + File.separator + fileName).copy();
 			}
 		}
 	}
@@ -171,13 +172,14 @@ public class FileUtility {
 
 	public static void main(String[] args) throws IOException {
 		System.out.println("----------Start: " + new Date() + "----------");
-//		final String WORKSPACE_PATH = "D:/HUBSWorkspace/Workspace";
+		final String WORKSPACE_PATH = "D:/HUBSWorkspace/Workspace";
 		final String SVN_PATH = "D:/SVN/16.2.1.0_WIP/SOURCE";
 //		Map<String, String> listFilesForFolder = FileUtility.getFileNameToFilePath("C:/Users/mithul.bhansali/Desktop/Patch");
 //		System.out.println(listFilesForFolder.keySet());
 		
 //		logFileChanges(WORKSPACE_PATH);
-		logFileChanges(SVN_PATH);
+//		logFileChanges(SVN_PATH);
+//		logFileChanges("D:/SVN/16.2.2.0_DEV_WIP/SOURCE");
 //		diff(WORKSPACE_PATH, SVN_PATH);
 		
 //		List<String> fileNameList = getDuplicateFileNameList(WORKSPACE_PATH);
@@ -199,7 +201,7 @@ public class FileUtility {
 
 		final int YEAR = 2017;
 		final int MONTH = Calendar.FEBRUARY;
-		final int DATE = 27;
+		final int DATE = 28;
 		final int HOUR_OF_DAY = 9;
 		final int MINUTE = 00;
 		
@@ -359,6 +361,21 @@ public class FileUtility {
 	        }
 	    }
 	    
+	}
+	
+	public static void createFile(File absoluteFilePath) throws IOException{
+		if(!absoluteFilePath.exists())
+			absoluteFilePath.createNewFile();
+	}
+	
+	public static void createDirectory(File absoluteDirectoryPath) throws IOException{
+		if(!absoluteDirectoryPath.exists())
+			absoluteDirectoryPath.mkdirs();
+	}
+	
+	public static void createFileAndDirectory(File file) throws IOException{
+		createDirectory(file.getParentFile());
+		createFile(file);
 	}
 }
 

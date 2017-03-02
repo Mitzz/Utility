@@ -136,4 +136,11 @@ public class FileBean implements Comparable<FileBean>{
 	public boolean isModifiedAfter(long time){
 		return lastModified() > time;
 	}
+	
+	public String relativePathWithoutFileName(){
+		String relativeWithoutName = relativePath.replace(name, "");
+		if(relativeWithoutName.length() > 0)
+			relativeWithoutName = StringUtility.removeLastPartAfterDelimiter(relativeWithoutName, File.separator);
+		return relativeWithoutName;
+	}
 }
