@@ -1,4 +1,4 @@
-package file;
+package file.model;
 
 import java.io.File;
 import java.io.IOException;

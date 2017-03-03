@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 import utility.ExceptionUtility;
-import file.PropertyFileLoader;
+import file.model.PropertyFileLoader;
 
 public class DBConnector {
 	private final static String CONNNECTION_DETAIL_FILE_PATH = "D:/Connection.properties";

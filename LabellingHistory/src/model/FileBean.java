@@ -143,4 +143,11 @@ public class FileBean implements Comparable<FileBean>{
 			relativeWithoutName = StringUtility.removeLastPartAfterDelimiter(relativeWithoutName, File.separator);
 		return relativeWithoutName;
 	}
+
+	@Override
+	public String toString() {
+		return "FileBean [absolutePath=" + absolutePath + "]";
+	}
+
+	
 }

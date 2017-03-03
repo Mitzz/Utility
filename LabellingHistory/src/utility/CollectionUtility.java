@@ -118,10 +118,18 @@ public class CollectionUtility {
 		else throw new IllegalArgumentException("Empty array or (" + lo + "," + hi + ") not in proper range"); 
 	}
 
-	public static <T> void displayList(List<T> list, String delimiter) {
-		if(isNonEmpty(list)){
-			for(T elem : list)
-				System.out.println(elem + delimiter);
+	public static <T> void displayCollection(Collection<T> col, String delimiter) {
+		if(isNonEmpty(col)){
+			for(T elem : col)
+				System.out.print(elem + delimiter);
+		}
+		else throw new IllegalArgumentException("Empty List"); 
+	}
+	
+	public static <T> void displayCollection(Collection<T> col) {
+		if(isNonEmpty(col)){
+			for(T elem : col)
+				System.out.println(elem);
 		}
 		else throw new IllegalArgumentException("Empty List"); 
 	}

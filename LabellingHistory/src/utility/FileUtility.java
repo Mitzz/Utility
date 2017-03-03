@@ -23,7 +23,11 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import file.FileCopy;
+import file.filter.ExcludeFolderFilter;
+import file.filter.IncludeExtensionFilter;
+import file.filter.ModifiedAfterFilter;
+import file.model.FileBeanRetriver;
+import file.model.FileCopy;
 import model.FileBean;
 
 public class FileUtility {
@@ -40,19 +44,11 @@ public class FileUtility {
 	}
 	
 	public static SortedSet<FileBean> getFileBean(final File folder) {
-		SortedSet<FileBean> fileBeanSet = new TreeSet<FileBean>();
-		for (final File fileEntry : folder.listFiles())
-	    	if (fileEntry.isDirectory()) 	fileBeanSet.addAll(getFileBean(fileEntry));
-	        else 							fileBeanSet.add(new FileBean().name(fileEntry.getName()).absolutePath(fileEntry.getAbsolutePath()).lastModified(fileEntry.lastModified()).length(fileEntry.length()));
-	    
-	    for(FileBean bean: fileBeanSet){
-	    	bean.relativePath(bean.absolutePath().replace(folder.getAbsolutePath(), ""));
-	    }
-	    return fileBeanSet;
+		return new FileBeanRetriver(folder).get();
 	}
 	
 	public static SortedSet<FileBean> getFileBean(final String folder) {
-		return getFileBean(new File(folder));
+		return new FileBeanRetriver(folder).get();
 	}
 	
 	public static SortedSet<FileBean> getFileBean(final File folder, Set<String> excludeFolderSet) {
@@ -115,25 +111,6 @@ public class FileUtility {
 		return new ArrayList<FileBean>(getFileBean(new File(searchDirectory), excludeFolderNameSet, extensionSet, date));
 	}
 
-	private static void copyFile(File fileFrom, File fileTo) throws IOException {
-		InputStream inStream = null;
-		OutputStream outStream = null;
-
-		inStream = new FileInputStream(fileFrom);
-		outStream = new FileOutputStream(fileTo);
-
-		byte[] buffer = new byte[1024];
-
-		int length;
-		// copy the file content in bytes
-		while ((length = inStream.read(buffer)) > 0) {
-			outStream.write(buffer, 0, length);
-		}
-
-		inStream.close();
-		outStream.close();
-	}
-	
 	public static void writeToFile(String file, String content) throws IOException {
 		PrintWriter out = new PrintWriter(file);
 		out.println(content);
@@ -180,7 +157,7 @@ public class FileUtility {
 //		logFileChanges(WORKSPACE_PATH);
 //		logFileChanges(SVN_PATH);
 //		logFileChanges("D:/SVN/16.2.2.0_DEV_WIP/SOURCE");
-//		diff(WORKSPACE_PATH, SVN_PATH);
+		diff(WORKSPACE_PATH, SVN_PATH);
 		
 //		List<String> fileNameList = getDuplicateFileNameList(WORKSPACE_PATH);
 //		System.out.println(fileNameList.size());
@@ -201,28 +178,30 @@ public class FileUtility {
 
 		final int YEAR = 2017;
 		final int MONTH = Calendar.FEBRUARY;
-		final int DATE = 28;
+		final int DATE = 1;
 		final int HOUR_OF_DAY = 9;
 		final int MINUTE = 00;
 		
 		Calendar instance = Calendar.getInstance();
 		instance.set(YEAR, MONTH, DATE, HOUR_OF_DAY, MINUTE, 0);
 
-		SortedSet<String> excludedFolderNameSet = CollectionUtility.createSortedSet("bin", "svn", "buildFiles",".metadata", "LabellingHistory", "Z");
-		List<FileBean> fileBeanListAfterGivenDate = getFileBeanListAfterGivenDate(instance.getTime(), filePath, excludedFolderNameSet, getFileExtensionNameSetToBeIncluded());
-		List<String> fileNameList = new ArrayList<String>();
+		ModifiedAfterFilter modifiedAfterFilter = new ModifiedAfterFilter(instance.getTime());
+		ExcludeFolderFilter excludeFolderFilter = new ExcludeFolderFilter(CollectionUtility.createSortedSet("bin", "svn", "buildFiles",".metadata", "LabellingHistory", "Z"));
+		IncludeExtensionFilter extensionFilter = new IncludeExtensionFilter("java", "js", "jsp", "class", "xml", "properties", "sql", "css", "html");
 		
-		for(FileBean fileBean: fileBeanListAfterGivenDate)
-			fileNameList.add(fileBean.absolutePath());
-		
+		FileBeanRetriver fileBeanRetriver = 
+				new FileBeanRetriver(filePath)
+					.addFileFilters(modifiedAfterFilter, excludeFolderFilter, extensionFilter);
+
+		SortedSet<FileBean> fileBeanSet = fileBeanRetriver.get();
 		String log = new String(new StringBuilder().append(
 				String.format("---- File Changes Details after %s for Folder Path %s ----\nExcluded Folder: %s\nIncluded File Extension: %s\nFile Size: %d\nFile Name: %s",
 					instance.getTime(),
 					filePath, 
-					excludedFolderNameSet, 
-					getFileExtensionNameSetToBeIncluded(), 
-					fileNameList.size(), 
-					fileNameList)));
+					excludeFolderFilter.getFolderSet(), 
+					extensionFilter.getExtensions(), 
+					fileBeanSet.size(), 
+					fileBeanSet)));
 		
 		System.out.println(log);
 		
@@ -284,6 +263,7 @@ public class FileUtility {
 	}
 	
 	private static void diff(String pathX, String pathY, Calendar modifiedAfter, SortedSet<String> excludedFolderNameSet, SortedSet<String> includedFileExtensionNameSet){
+		
 		
 		List<FileBean> pathXFileBeanList = getFileBeanListAfterGivenDate(modifiedAfter.getTime(), pathX, excludedFolderNameSet, includedFileExtensionNameSet);
 		SortedSet<FileBean> pathYFileBeanSet = getFileBean(new File(pathY), excludedFolderNameSet, includedFileExtensionNameSet, modifiedAfter.getTime());
