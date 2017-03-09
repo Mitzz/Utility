@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import utility.StringUtility;
 import model.DBConnector;
 import db.oracle.OracleDbUtility;
 import db.oracle.OracleTransformParam;
@@ -14,14 +15,12 @@ public class DbUtility{
 
 	
 	public static String getPrepareStatement(int numColumns, StringBuilder columnNames, Table table) {
-		StringBuilder s = new StringBuilder();
+		StringBuilder sb = new StringBuilder();
 		while(numColumns != 0){
-			s.append("?,");
+			sb.append("?,");
 			numColumns--;
-			
 		}
-		
-		return String.format("INSERT INTO %s (%s) values (%s)", table.getName(), columnNames, new String(s.substring(0, s.length() - 1)));
+		return String.format("INSERT INTO %s (%s) values (%s)", table.getName(), columnNames, StringUtility.removeLastCharacter(sb));
 	}
 	
 	
@@ -29,8 +28,9 @@ public class DbUtility{
 		Connection sourceConnection = null;
 		Connection destinationConnection = null;
 		try{	
-			sourceConnection = DBConnector.getConnection("MITHULLOCALUSER");
-			destinationConnection = DBConnector.getConnection("LOCAL_COPY_2");
+			DBConnector.init();
+			sourceConnection = DBConnector.getConnection("SIT3");
+			destinationConnection = DBConnector.getConnection("LOCAL_COPY_3");
 			OracleDbUtility.setTransform(sourceConnection, 
 					Arrays.asList(	OracleTransformParam.SEGMENT_ATTRIBUTES,
 									OracleTransformParam.CONSTRAINTS,
@@ -43,24 +43,24 @@ public class DbUtility{
 			List<String> ddlList = new ArrayList<String>();
 			ddlList.addAll(OracleUserDDL.getUserTypeDDL(sourceConnection));
 			ddlList.addAll(OracleUserDDL.getUserSequenceDDL(sourceConnection));
-//			ddlList.addAll(OracleUserDDL.getUserTableDDL(sourceConnection));
-//			ddlList.addAll(OracleUserDDL.getUserViewDDL(sourceConnection));
-//
+			ddlList.addAll(OracleUserDDL.getUserTableDDL(sourceConnection));
+			ddlList.addAll(OracleUserDDL.getUserViewDDL(sourceConnection));
+
 			OracleDbUtility.executeDdl(destinationConnection, ddlList);
-//
-//			OracleDbUtility.transferTableData(sourceConnection, destinationConnection);
-//			
-//			ddlList = new ArrayList<String>();
-//			ddlList.addAll(OracleUserDDL.getUserTablePrimaryKeyConstraintDdl(sourceConnection));
-//			ddlList.addAll(OracleUserDDL.getUserTableUniqueKeyConstraintDdl(sourceConnection));
-//			ddlList.addAll(OracleUserDDL.getUserCheckConstraintDDL(sourceConnection));
-//			ddlList.addAll(OracleUserDDL.getNotNullConstraintDDL(sourceConnection));
-//			ddlList.addAll(OracleUserDDL.getForeignKeyConstraintDDL(sourceConnection));
-//			ddlList.addAll(OracleUserDDL.getUserFunctionDDL(sourceConnection));
-//			ddlList.addAll(OracleUserDDL.getUserPackageDDL(sourceConnection));
-//			ddlList.addAll(OracleUserDDL.getUserProcedureDDL(sourceConnection));
-//
-//			OracleDbUtility.executeDdl(destinationConnection, ddlList);
+
+			OracleDbUtility.transferTableData(sourceConnection, destinationConnection);
+			
+			ddlList = new ArrayList<String>();
+			ddlList.addAll(OracleUserDDL.getUserTablePrimaryKeyConstraintDdl(sourceConnection));
+			ddlList.addAll(OracleUserDDL.getUserTableUniqueKeyConstraintDdl(sourceConnection));
+			ddlList.addAll(OracleUserDDL.getUserCheckConstraintDDL(sourceConnection));
+			ddlList.addAll(OracleUserDDL.getNotNullConstraintDDL(sourceConnection));
+			ddlList.addAll(OracleUserDDL.getForeignKeyConstraintDDL(sourceConnection));
+			ddlList.addAll(OracleUserDDL.getUserFunctionDDL(sourceConnection));
+			ddlList.addAll(OracleUserDDL.getUserPackageDDL(sourceConnection));
+			ddlList.addAll(OracleUserDDL.getUserProcedureDDL(sourceConnection));
+
+			OracleDbUtility.executeDdl(destinationConnection, ddlList);
 			
 //			CollectionUtility.displayList(OracleInsertScriptGenerator.getInsertScript(sourceConnection, "TB_LANGUAGE_MASTER"), ";");
 		}
