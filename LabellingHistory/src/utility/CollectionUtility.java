@@ -10,6 +10,8 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import utility.misc.RandomRange;
+
 public class CollectionUtility {
 
 	public static <T> String join(Collection<T> collection, String delimiter) {
@@ -132,5 +134,11 @@ public class CollectionUtility {
 				System.out.println(elem);
 		}
 		else throw new IllegalArgumentException("Empty List"); 
+	}
+	
+	public static void populateArrayWithRange(int[] arr, int lo, int hi) {
+		RandomRange randomRange = new RandomRange(lo, hi);
+		for(int i = 0; i < arr.length; i++)
+			arr[i] = randomRange.get();
 	}
 }
