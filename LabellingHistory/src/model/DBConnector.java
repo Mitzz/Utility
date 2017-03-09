@@ -45,7 +45,7 @@ public class DBConnector {
 	public static Connection getConnection(String connectionName) throws ClassNotFoundException, SQLException {
 		String connectionNameProp = prop.getProperty(connectionName);
 		ExceptionUtility.throwIfAnyNull("Connction Name does not exists", connectionNameProp);
-		int id = Integer.parseInt(prop.getProperty(connectionNameProp));
+		int id = Integer.parseInt(connectionNameProp);
 		return getConnection(id);
 	}
 
