@@ -37,16 +37,17 @@ public class RandomStringsPanel extends JPanel{
 		RandomRange colorRange = new RandomRange(0, 255);
 		RandomRange fontRange = new RandomRange(0, allFonts.length - 1);
 		RandomRange fontSizeRange = new RandomRange(10, 40, 4);
+		RandomRange xAxisRange = new RandomRange(0, componentWidth - (str.length() * 6));
+		RandomRange yAxisRange = new RandomRange(0, componentHeight);
+		
 		Font randomFont = allFonts[fontRange.get()];
 		int fontSize = fontSizeRange.get();
 		
-		int strX = (componentWidth / 2);
-		int strY = (componentHeight / 2);
 		Color strColor = new Color(colorRange.get(), colorRange.get(), colorRange.get());
 		Font strFont =  new Font(randomFont.getFontName(), Font.ITALIC, fontSize);
 		
 		g.setColor(strColor);
 		g.setFont(strFont);
-		g.drawString(str, strX, strY);
+		g.drawString(str, xAxisRange.get(), yAxisRange.get());
 	}
 }
