@@ -10,9 +10,6 @@ import javax.swing.JPanel;
 
 public class RandomStringsPanel extends JPanel{
 	
-	private final static int CHARACTER_HEIGHT_PIXEL = 8;
-	private final static int CHARACTER_WIDTH_PIXEL = 6;
-
 	public static void main(String[] args) {
 		JFrame window = new JFrame("String panel");
 		
@@ -40,14 +37,16 @@ public class RandomStringsPanel extends JPanel{
 		RandomRange xAxisRange = new RandomRange(0, componentWidth - (str.length() * 6));
 		RandomRange yAxisRange = new RandomRange(0, componentHeight);
 		
-		Font randomFont = allFonts[fontRange.get()];
-		int fontSize = fontSizeRange.get();
-		
-		Color strColor = new Color(colorRange.get(), colorRange.get(), colorRange.get());
-		Font strFont =  new Font(randomFont.getFontName(), Font.ITALIC, fontSize);
-		
-		g.setColor(strColor);
-		g.setFont(strFont);
-		g.drawString(str, xAxisRange.get(), yAxisRange.get());
+		for(int i = 0; i < 40; i++){
+			Font randomFont = allFonts[fontRange.get()];
+			int fontSize = fontSizeRange.get();
+			
+			Color strColor = new Color(colorRange.get(), colorRange.get(), colorRange.get());
+			Font strFont =  new Font(randomFont.getFontName(), Font.ITALIC, fontSize);
+			
+			g.setColor(strColor);
+			g.setFont(strFont);
+			g.drawString(str, xAxisRange.get(), yAxisRange.get());
+		}
 	}
 }
