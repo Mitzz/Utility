@@ -1,5 +1,6 @@
 package org.mitz;
 
+import java.awt.Color;
 import java.awt.Graphics;
 
 import javax.swing.JFrame;
@@ -25,12 +26,15 @@ public class RandomStringsPanel extends JPanel{
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
+		RandomRange colorRange = new RandomRange(0, 255); 
+		
 		int width = getWidth();
 		int height = getHeight();
 		String str = "Hello World";
 		int strX = (width / 2) - (str.length() * CHARACTER_WIDTH_PIXEL / 2);
 		int strY = (height / 2) + CHARACTER_HEIGHT_PIXEL / 2;
 
+		g.setColor(new Color(colorRange.get(), colorRange.get(), colorRange.get()));
 		g.drawString("Hello World", strX, strY);
 	}
 }
