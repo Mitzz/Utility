@@ -1,7 +1,9 @@
 package org.mitz;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.GraphicsEnvironment;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -26,15 +28,25 @@ public class RandomStringsPanel extends JPanel{
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		RandomRange colorRange = new RandomRange(0, 255); 
-		
-		int width = getWidth();
-		int height = getHeight();
+		int componentWidth = getWidth();
+		int componentHeight = getHeight();
 		String str = "Hello World";
-		int strX = (width / 2) - (str.length() * CHARACTER_WIDTH_PIXEL / 2);
-		int strY = (height / 2) + CHARACTER_HEIGHT_PIXEL / 2;
-
-		g.setColor(new Color(colorRange.get(), colorRange.get(), colorRange.get()));
-		g.drawString("Hello World", strX, strY);
+		Font[] allFonts = GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts();
+		
+		
+		RandomRange colorRange = new RandomRange(0, 255);
+		RandomRange fontRange = new RandomRange(0, allFonts.length - 1);
+		RandomRange fontSizeRange = new RandomRange(10, 40, 4);
+		Font randomFont = allFonts[fontRange.get()];
+		int fontSize = fontSizeRange.get();
+		
+		int strX = (componentWidth / 2);
+		int strY = (componentHeight / 2);
+		Color strColor = new Color(colorRange.get(), colorRange.get(), colorRange.get());
+		Font strFont =  new Font(randomFont.getFontName(), Font.ITALIC, fontSize);
+		
+		g.setColor(strColor);
+		g.setFont(strFont);
+		g.drawString(str, strX, strY);
 	}
 }
