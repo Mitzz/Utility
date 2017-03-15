@@ -17,6 +17,11 @@ public class StringUtility {
 		return (delimiterLastIndex == -1) ? str : str.substring(0, delimiterLastIndex);
 	}
 	
+	public static String removePartAfterDelimiter(String str, String delimiter) {
+		int delimiterIndex = str.indexOf(delimiter);
+		return (delimiterIndex == -1) ? str : str.substring(0, delimiterIndex);
+	}
+	
 	public static String removeLastCharacter(String str) {
 		return str.substring(0, str.length() - 1);
 	}
@@ -26,7 +31,7 @@ public class StringUtility {
 	}
 	
 	public static void main(String[] args) {
-		System.out.println(removeLastPartAfterDelimiter("askdasdasds", "das"));
+		System.out.println(removePartAfterDelimiter("askdasdasds", "das"));
 	}
 }
 
