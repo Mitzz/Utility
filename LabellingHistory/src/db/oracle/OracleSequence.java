@@ -22,9 +22,9 @@ public class OracleSequence {
 	
 	private long getLastNo() throws SQLException{
 		long no = getNextValue();
-		incrementBy(-1);
+		setIncrementBy(-1);
 		no = getNextValue();
-		incrementBy(1);
+		setIncrementBy(1);
 		return no;
 	}
 	
@@ -40,7 +40,7 @@ public class OracleSequence {
 		return nextValue;
 	}
 	
-	private void incrementBy(int n) throws SQLException{
+	private void setIncrementBy(int n) throws SQLException{
 		PreparedStatement psmt = connection.prepareStatement(String.format("ALTER SEQUENCE %s INCREMENT BY %d", name, n));
 		psmt.executeUpdate();
 		if(psmt != null) psmt.close();
@@ -51,7 +51,7 @@ public class OracleSequence {
 		
 		try {
 			DBConnector.init();
-			connection = DBConnector.getConnection("SIT2");
+			connection = DBConnector.getConnection(DBConnector.LOCAL_COPY_3);
 			OracleSequence sequenceNoGetter = new OracleSequence("AUDIT_ID", connection);
 			long currentValue = sequenceNoGetter.getLastNo();
 			System.out.println("Current Value: " + currentValue);
