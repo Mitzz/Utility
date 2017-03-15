@@ -13,6 +13,15 @@ public class DBConnector {
 	private final static String CONNNECTION_DETAIL_FILE_PATH = "D:/Connection.properties";
 	private final static String DRIVER_CLASS = "oracle.jdbc.driver.OracleDriver";
 	
+	public final static int MITHULLOCALUSER = 1;
+	public final static int LOCAL_SYS_USER = 2;
+	public final static int LOCAL_DEV2 = 3;
+	public final static int SIT2 = 6;
+	public final static int LOCAL_COPY = 7;
+	public final static int LOCAL_COPY_2 = 9;
+	public final static int SIT3 = 10;
+	public final static int LOCAL_COPY_3 = 11;
+	
 	private static Properties prop = null;
 	
 	public static void init() throws IOException, ClassNotFoundException{
