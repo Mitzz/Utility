@@ -1,6 +1,7 @@
 package model;
 
 import java.io.File;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -17,6 +18,8 @@ public class FileBean implements Comparable<FileBean>{
 	private String extension;
 	private long length;
 	private String relativePath;
+	
+	public static final Comparator<FileBean> SORT_BY_LAST_MODIFIED_ASC = new ByLastModifiedAsc();
 	
 	public long length(){
 		return length;
@@ -149,5 +152,14 @@ public class FileBean implements Comparable<FileBean>{
 		return "FileBean [absolutePath=" + absolutePath + "]";
 	}
 
-	
+	private static class ByLastModifiedAsc implements Comparator<FileBean>{
+
+		@Override
+		public int compare(FileBean o1, FileBean o2) {
+			if(o1.lastModified() < o2.lastModified()) return -1;
+			if(o1.lastModified() > o2.lastModified()) return +1;
+			return 0;
+		}  
+
+	}
 }
