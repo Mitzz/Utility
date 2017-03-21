@@ -1,20 +1,25 @@
 package db.oracle;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
+import model.DBConnector;
 import utility.DateUtility;
 import utility.FileUtility;
 import utility.LogUtility;
+import db.DbUtility;
 import db.Table;
 
 public class OracleInsertScriptGenerator{
-	public static List<String> getInsertScript(Connection conn, Table table) throws Exception {
+	public static List<String> getInsertScript(Connection conn, Table table) throws SQLException, UnsupportedEncodingException{
 		List<String> insertStatementList = new ArrayList<String>();
 		String tableName = table.getName();
 		LogUtility.log("Generating Insert statements for: " + tableName + " <-> " + table.getSelectSqlForInsertion());
@@ -74,7 +79,7 @@ public class OracleInsertScriptGenerator{
 							columnValues.append("null");
 							break;
 						default:
-							v = rs.getString(i + 1);
+							v = new String(rs.getString(i + 1).getBytes(), "UTF-8");
 							columnValues.append("'" + v.replaceAll("'", "''") + "'");
 							break;
 					}
@@ -89,7 +94,7 @@ public class OracleInsertScriptGenerator{
 		return insertStatementList;
 	}
 	
-	public static List<String> getInsertScript(Connection conn, String tableName) throws Exception {
+	public static List<String> getInsertScript(Connection conn, String tableName) throws SQLException, UnsupportedEncodingException {
 		return getInsertScript(conn, new Table(tableName));
 	}
 	
@@ -101,6 +106,30 @@ public class OracleInsertScriptGenerator{
 			builder.append(insertDML).append(";").append(FileUtility.NEW_LINE);
 		
 		return new String(builder);
+	}
+	
+	public static void main(String[] args) {
+		Connection connection = null;
+		try {
+			DBConnector.init();
+			connection = DBConnector.getConnection(DBConnector.SIT2);
+			List<String> insertScriptList = OracleInsertScriptGenerator.getInsertScript(connection, "TB_MULTILANG_MASTER");
+			for(String inserString: insertScriptList){
+				FileUtility.appendToFile("C:/APT.txt", inserString);
+			}
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				DbUtility.closeResources(connection);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 	}
 }
 
