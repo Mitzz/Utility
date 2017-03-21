@@ -10,7 +10,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -117,6 +119,13 @@ public class FileUtility {
 		if(out != null) out.close();
 	}
 	
+	public static void writeToFile(String file, String content, Charset charset) throws IOException {
+		PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(
+			    new FileOutputStream(file), charset)));
+		out.println(content);
+		if(out != null) out.close();
+	}
+	
 	public static void appendToFile(String file, String content) {
 		PrintWriter out = null;
 		try {
@@ -150,7 +159,8 @@ public class FileUtility {
 	public static void main(String[] args) throws IOException {
 		System.out.println("----------Start: " + new Date() + "----------");
 		final String WORKSPACE_PATH = "D:/HUBSWorkspace/Workspace";
-		final String SVN_PATH = "D:/SVN/16.2.1.0_WIP/SOURCE";
+//		final String SVN_PATH = "D:/SVN/16.2.1.0_WIP/SOURCE";
+		final String SVN_PATH = "D:/SVN/16.2.2.0_DEV_WIP";
 //		Map<String, String> listFilesForFolder = FileUtility.getFileNameToFilePath("C:/Users/mithul.bhansali/Desktop/Patch");
 //		System.out.println(listFilesForFolder.keySet());
 		
@@ -177,8 +187,8 @@ public class FileUtility {
 	private static void logFileChanges(String filePath){
 
 		final int YEAR = 2017;
-		final int MONTH = Calendar.FEBRUARY;
-		final int DATE = 1;
+		final int MONTH = Calendar.MARCH;
+		final int DATE = 21;
 		final int HOUR_OF_DAY = 9;
 		final int MINUTE = 00;
 		
@@ -212,7 +222,7 @@ public class FileUtility {
 		final String WORKSPACE_PATH = "D:/HUBSWorkspace/Workspace";
 //		final String WORKSPACE_PATH = "D:/SVN/16.2.1.0_WIP/SOURCE";
 		final int YEAR = 2017;
-		final int MONTH = Calendar.FEBRUARY;
+		final int MONTH = Calendar.MARCH;
 		final int DATE = 1;
 		final int HOUR_OF_DAY = 9;
 		final int MINUTE = 00;
@@ -253,7 +263,7 @@ public class FileUtility {
 		instance.set(YEAR, MONTH, DATE, HOUR_OF_DAY, MINUTE, 0);
 		
 		SortedSet<String> excludedFolderNameSet = 
-				CollectionUtility.createSortedSet("bin", "svn", ".metadata", "LabellingHistory", "BLOB", "build", ".settings","Z");
+				CollectionUtility.createSortedSet("bin", "svn", ".metadata", "LabellingHistory", "BLOB", "build", ".settings","Z", "ArchivalSystem");
 		
 		diff(WORKSPACE_PATH, SVN_PATH, instance, excludedFolderNameSet, getFileExtensionNameSetToBeIncluded());
 	}
