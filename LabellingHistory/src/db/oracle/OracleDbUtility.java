@@ -1,7 +1,9 @@
 package db.oracle;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.sql.Blob;
 import java.sql.CallableStatement;
 import java.sql.Clob;
@@ -19,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import model.DBConnector;
 import utility.CollectionUtility;
 import utility.LogUtility;
 import db.DbUtility;
@@ -39,20 +42,21 @@ public class OracleDbUtility {
 		}
 	}
 	
-	public static void executeDdl(Connection connection, List<String> ddlSqlList) throws SQLException {
+	public static void executeDdl(Connection connection, List<String> ddlSqlList) throws SQLException, UnsupportedEncodingException {
 		executeBatch(connection, 900, ddlSqlList);
 	}
 	
 	public static void transferTableData(Connection sourceConn, Connection destinationConn) throws Exception{
 //		System.out.println(new Date());		
-		List<String> conn1UserTableNameList = OracleUserObject.getUserTable(sourceConn);
+		List<String> sourceUserTableNameList = OracleUserObject.getUserTable(sourceConn);
 		List<String> userTableNameClobBlob = OracleUserObject.getUserTableNameHavingClobBlob(sourceConn);
-		conn1UserTableNameList.removeAll(userTableNameClobBlob);
+		sourceUserTableNameList.removeAll(userTableNameClobBlob);
 		List<String> insertScriptList = new ArrayList<String>();
 		
 		int INSERT_SCRIPT_SIZE = 10000;
-		for(String conn2TableName: conn1UserTableNameList){
-			insertScriptList.addAll(OracleInsertScriptGenerator.getInsertScript(sourceConn, new Table(conn2TableName)));
+//		String sourceTableName = "TB_MULTILANG_MASTER";
+		for(String sourceTableName: sourceUserTableNameList){
+			insertScriptList.addAll(OracleInsertScriptGenerator.getInsertScript(sourceConn, new Table(sourceTableName)));
 //			System.out.println("Insert Script Size: " + insertScriptList.size());
 			if(insertScriptList.size() > INSERT_SCRIPT_SIZE){
 				OracleDbUtility.executeBatch(destinationConn, 999, insertScriptList);
@@ -67,6 +71,52 @@ public class OracleDbUtility {
 		
 //		System.out.println(new Date());
 	}
+	
+	public static void transferTableData(Connection sourceConn, Connection destinationConn, String tableName) throws Exception{
+//		System.out.println(new Date());		
+		List<String> insertScriptList = new ArrayList<String>();
+		
+		int INSERT_SCRIPT_SIZE = 10000;
+		insertScriptList.addAll(OracleInsertScriptGenerator.getInsertScript(sourceConn, new Table(tableName)));
+		if(insertScriptList.size() > INSERT_SCRIPT_SIZE){
+			OracleDbUtility.executeBatch(destinationConn, 999, insertScriptList);
+			insertScriptList = new ArrayList<String>();
+		}
+		if(insertScriptList.size() > 0)
+			OracleDbUtility.executeBatch(destinationConn, 999, insertScriptList);
+		
+		
+//		System.out.println(new Date());
+	}
+	
+	public static void main(String[] args) {
+		Connection sourceConnection = null;
+		Connection destConnection = null;
+		try {
+			DBConnector.init();
+			sourceConnection =  DBConnector.getConnection(DBConnector.SIT2);
+			destConnection = DBConnector.getConnection(DBConnector.LOCAL_COPY_2);
+			transferTableData(sourceConnection, destConnection, "TB_MULTILANG_MASTER");
+//			doClobInsertScriptEach(sourceConnection, destConnection, new Table("TB_SCREEN_MASTER"));
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				DbUtility.closeResources(sourceConnection, destConnection);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+	}
+	
+	
 	
 	public static List<String> doClobInsertScriptEach(Connection sourceConn, Connection destinationConn, Table table) throws Exception {
 		List<String> insertStatementList = new ArrayList<String>();
@@ -158,8 +208,13 @@ public class OracleDbUtility {
 //					if(clob != null) clob.free();
 					break;
 				default:
-					v = rs.getString(i + 1);
-					psmt.setObject(i + 1, v);
+					if(rs.getString(i + 1) != null){
+						v = new String(rs.getString(i + 1).getBytes(), "UTF-8");
+						System.out.println(v);
+						psmt.setObject(i + 1, v);
+					} else {
+						psmt.setObject(i + 1, rs.getString(i + 1));
+					}
 					break;
 				}
 				
@@ -215,14 +270,14 @@ public class OracleDbUtility {
 		return tableBeanSet;
 	}
 	
-	public static void executeBatch(Connection connection, int BATCH_SIZE, List<String> sqlList) throws SQLException{
+	public static void executeBatch(Connection connection, int BATCH_SIZE, List<String> sqlList) throws SQLException, UnsupportedEncodingException{
 		Statement st = null;
 		int counter = 0;
 		try{
 			st = connection.createStatement();
 			for(String sql: sqlList){
 				counter++;
-				st.addBatch(sql);
+				st.addBatch(new String(sql.getBytes(), "UTF-8"));
 				System.out.println(sql);
 				if(counter % BATCH_SIZE == 0){
 //					System.out.println(counter + " ");
