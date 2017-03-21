@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.Charset;
 import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -25,13 +26,15 @@ import utility.FileUtility;
 import db.oracle.OracleInsertScriptGenerator;
 
 public class GenerateInsertStatements {
-	private static Integer CONNECTION_ID = 7;
+	private static Integer CONNECTION_ID = DBConnector.SIT2;
 	private static final String FILE_EXTENSION = "_insert.sql";
 	
 	private static final String BLOB_SEPARATOR = "~";
 
 	public static void main(String[] args) throws Exception {
 //		generateAndWriteInsertScriptToFile("TB_MULTILANG_MASTER");
+//		generateAndWriteInsertScriptToFile("TB_SCREEN_UIC_MASTER");
+//		generateAndWriteInsertScriptToFile("TB_SCREEN_TAB_MASTER");
 		aptConfigurationTables();
 //		insertRecordsFromFile("C:\\Users\\mithul.bhansali\\Desktop\\tttt.txt");
 	}	
@@ -140,7 +143,7 @@ public class GenerateInsertStatements {
 			conn = DBConnector.getConnection(CONNECTION_ID);
 			if (tableName != null) {
 				String insertScript = OracleInsertScriptGenerator.getInsertScriptAsString(conn, table);
-				FileUtility.writeToFile(tableName + FILE_EXTENSION, insertScript);
+				FileUtility.writeToFile(tableName + FILE_EXTENSION, insertScript, Charset.forName("UTF-8"));
 				//generateInsertStatements(conn, table);
 			} else {
 				PrintWriter p = new PrintWriter(new FileWriter("insert_all.sql"));
